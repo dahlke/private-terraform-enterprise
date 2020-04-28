@@ -1,0 +1,6 @@
+aws_region        = "us-west-2"
+namespace         = "neil-ptfe"
+aws_instance_type = "m5.large"
+ssh_key_name      = "hc-neil-us-west-2"
+owner             = "neil"
+ttl               = "-1"

@@ -6,10 +6,6 @@ variable "namespace" {
   description = "Unique name to use for DNS and resource naming"
 }
 
-variable "aws_instance_ami" {
-  description = "Amazon Machine Image ID"
-}
-
 variable "aws_instance_type" {
   description = "EC2 instance type"
 }
