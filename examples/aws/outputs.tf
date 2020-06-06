@@ -11,7 +11,6 @@ output "replicated_console_password" {
 }
 */
 
-/*
 output "pmd_fqdn" {
   value = "${module.pmd.pmd_fqdn}"
 }
@@ -22,8 +21,6 @@ output "replicated_console" {
 output "replicated_console_password" {
   value = "${random_pet.replicated-pwd.id}"
 }
-*/
-
 
 
 /*
@@ -46,7 +43,6 @@ output "pes_pg_username" {
   value = "${module.pes.pg_username}"
 }
 
-
 output "pes_pg_password" {
   value = "${module.pes.pg_password}"
 }
@@ -54,6 +50,7 @@ output "pes_pg_password" {
 output "pes_s3_bucket_name" {
   value = "${module.pes.s3_bucket_name}"
 }
+*/
 
 output "acme_key" {
   value = "${acme_certificate.certificate.private_key_pem}"
@@ -62,4 +59,3 @@ output "acme_key" {
 output "acme_cert" {
   value = "${acme_certificate.certificate.certificate_pem}"
 }
-*/

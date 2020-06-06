@@ -76,7 +76,6 @@ module "demo" {
 # production mounted disk ptfe
 #------------------------------------------------------------------------------
 
-/*
 module "pmd" {
   source                 = "./pmd/"
   namespace              = "${var.namespace}"
@@ -90,12 +89,12 @@ module "pmd" {
   owner                  = "${var.owner}"
   ttl                    = "${var.ttl}"
 }
-*/
 
 #------------------------------------------------------------------------------
 # production external-services ptfe
 #------------------------------------------------------------------------------
 
+/*
 module "pes" {
   source                 = "./pes/"
   namespace              = "${var.namespace}"
@@ -112,6 +111,7 @@ module "pes" {
   owner                = "${var.owner}"
   ttl                  = "${var.ttl}"
 }
+*/
 
 
 /* Cert */
@@ -132,7 +132,7 @@ resource "acme_registration" "reg" {
 resource "acme_certificate" "certificate" {
   account_key_pem           = "${acme_registration.reg.account_key_pem}"
   common_name               = "hashidemos.io"
-  subject_alternative_names = ["${var.namespace}-pes.hashidemos.io", "${var.namespace}-pmd.hashidemos.io", "${var.namespace}-demo.hashidemos.io"]
+  subject_alternative_names = ["${var.namespace}-pmd.hashidemos.io", "${var.namespace}-pmd7.hashidemos.io"]
 
   dns_challenge {
     provider = "route53"
