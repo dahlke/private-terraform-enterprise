@@ -8,37 +8,37 @@ locals {
 
 resource "aws_instance" "pes" {
   count                  = 2
-  ami                    = "${var.aws_instance_ami}"
-  instance_type          = "${var.aws_instance_type}"
-  subnet_id              = "${element(var.subnet_ids, count.index)}"
-  vpc_security_group_ids = ["${var.vpc_security_group_ids}"]
-  key_name               = "${var.ssh_key_name}"
-  user_data              = "${var.user_data}"
-  iam_instance_profile   = "${aws_iam_instance_profile.ptfe.name}"
+  ami                    = var.aws_instance_ami
+  instance_type          = var.aws_instance_type
+  subnet_id              = element(var.subnet_ids, count.index)
+  vpc_security_group_ids = [var.vpc_security_group_ids]
+  key_name               = var.ssh_key_name
+  user_data              = var.user_data
+  iam_instance_profile   = aws_iam_instance_profile.ptfe.name
 
   root_block_device {
     volume_size = 80
     volume_type = "gp2"
   }
 
-  tags {
-    Name  = "${local.namespace}-instance-${count.index+1}"
-    owner = "${var.owner}"
-    TTL   = "${var.ttl}"
+  tags = {
+    Name  = "${local.namespace}-instance-${count.index + 1}"
+    owner = var.owner
+    TTL   = var.ttl
   }
 }
 
 resource "aws_eip" "pes" {
-  instance = "${aws_instance.pes.0.id}"
+  instance = aws_instance.pes[0].id
   vpc      = true
 }
 
 resource "aws_route53_record" "pes" {
-  zone_id = "${var.hashidemos_zone_id}"
+  zone_id = var.hashidemos_zone_id
   name    = "${local.namespace}.hashidemos.io."
   type    = "A"
   ttl     = "300"
-  records = ["${aws_eip.pes.public_ip}"]
+  records = [aws_eip.pes.public_ip]
 }
 
 resource "aws_s3_bucket" "pes" {
@@ -49,7 +49,7 @@ resource "aws_s3_bucket" "pes" {
     enabled = true
   }
 
-  tags {
+  tags = {
     Name = "${local.namespace}-s3-bucket"
   }
 }
@@ -63,9 +63,9 @@ resource "aws_db_instance" "pes" {
   name                      = "ptfe"
   storage_type              = "gp2"
   username                  = "ptfe"
-  password                  = "${var.database_pwd}"
-  db_subnet_group_name      = "${var.db_subnet_group_name}"
-  vpc_security_group_ids    = ["${var.vpc_security_group_ids}"]
+  password                  = var.database_pwd
+  db_subnet_group_name      = var.db_subnet_group_name
+  vpc_security_group_ids    = [var.vpc_security_group_ids]
   final_snapshot_identifier = "${local.namespace}-db-instance-final-snapshot"
 }
 
@@ -90,11 +90,12 @@ resource "aws_iam_role" "ptfe" {
   ]
 }
 EOF
+
 }
 
 resource "aws_iam_instance_profile" "ptfe" {
   name = "${local.namespace}-iam_instance_profile"
-  role = "${aws_iam_role.ptfe.name}"
+  role = aws_iam_role.ptfe.name
 }
 
 data "aws_iam_policy_document" "ptfe" {
@@ -115,6 +116,7 @@ data "aws_iam_policy_document" "ptfe" {
 
 resource "aws_iam_role_policy" "ptfe" {
   name   = "${local.namespace}-iam_role_policy"
-  role   = "${aws_iam_role.ptfe.name}"
-  policy = "${data.aws_iam_policy_document.ptfe.json}"
+  role   = aws_iam_role.ptfe.name
+  policy = data.aws_iam_policy_document.ptfe.json
 }
+

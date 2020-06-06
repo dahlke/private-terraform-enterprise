@@ -10,39 +10,39 @@ resource "aws_vpc" "main" {
   cidr_block           = "10.0.0.0/16"
   enable_dns_hostnames = true
 
-  tags {
+  tags = {
     Name = "${var.namespace}-vpc"
   }
 }
 
 resource "aws_internet_gateway" "main" {
-  vpc_id = "${aws_vpc.main.id}"
+  vpc_id = aws_vpc.main.id
 
-  tags {
+  tags = {
     Name = "${var.namespace}-internet_gateway"
   }
 }
 
 resource "aws_route_table" "main" {
-  vpc_id = "${aws_vpc.main.id}"
+  vpc_id = aws_vpc.main.id
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = "${aws_internet_gateway.main.id}"
+    gateway_id = aws_internet_gateway.main.id
   }
 
-  tags {
+  tags = {
     Name = "${var.namespace}-route_table"
   }
 }
 
 resource "aws_subnet" "main" {
   count             = 2
-  cidr_block        = "10.0.${count.index+1}.0/24"
-  vpc_id            = "${aws_vpc.main.id}"
-  availability_zone = "${element(data.aws_availability_zones.available.names, count.index)}"
+  cidr_block        = "10.0.${count.index + 1}.0/24"
+  vpc_id            = aws_vpc.main.id
+  availability_zone = element(data.aws_availability_zones.available.names, count.index)
 
-  tags {
+  tags = {
     Name = "${var.namespace}-subnet-${element(data.aws_availability_zones.available.names, count.index)}"
   }
 
@@ -50,15 +50,15 @@ resource "aws_subnet" "main" {
 }
 
 resource "aws_db_subnet_group" "main" {
-  name_prefix = "${var.namespace}"
+  name_prefix = var.namespace
   description = "${var.namespace}-db_subnet_group"
-  subnet_ids  = ["${aws_subnet.main.*.id}"]
+  subnet_ids  = aws_subnet.main.*.id
 }
 
 resource "aws_route_table_association" "main" {
   count          = 2
-  route_table_id = "${aws_route_table.main.id}"
-  subnet_id      = "${element(aws_subnet.main.*.id, count.index)}"
+  route_table_id = aws_route_table.main.id
+  subnet_id      = element(aws_subnet.main.*.id, count.index)
 }
 
 #------------------------------------------------------------------------------
@@ -68,7 +68,7 @@ resource "aws_route_table_association" "main" {
 resource "aws_security_group" "main" {
   name        = "${var.namespace}-sg"
   description = "${var.namespace} security group"
-  vpc_id      = "${aws_vpc.main.id}"
+  vpc_id      = aws_vpc.main.id
 
   ingress {
     protocol  = -1
@@ -112,3 +112,4 @@ resource "aws_security_group" "main" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+

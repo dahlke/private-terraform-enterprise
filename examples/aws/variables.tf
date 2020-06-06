@@ -22,3 +22,4 @@ variable "ttl" {
   description = "EC2 instance TTL"
   default     = "168"
 }
+

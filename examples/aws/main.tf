@@ -1,9 +1,5 @@
-terraform {
-  required_version = ">= 0.10.3"
-}
-
 provider "aws" {
-  region = "${var.aws_region}"
+  region = var.aws_region
 }
 
 data "aws_route53_zone" "hashidemos" {
@@ -19,11 +15,11 @@ resource "random_pet" "replicated-pwd" {
 }
 
 data "template_file" "user_data" {
-  template = "${file("${path.module}/user-data.tpl")}"
+  template = file("${path.module}/user-data.tpl")
 
-  vars {
+  vars = {
     hostname       = "${var.namespace}.hashidemos.io"
-    replicated_pwd = "${random_pet.replicated-pwd.id}"
+    replicated_pwd = random_pet.replicated-pwd.id
   }
 }
 
@@ -49,7 +45,7 @@ data "aws_ami" "ubuntu" {
 
 module "network" {
   source    = "./network/"
-  namespace = "${var.namespace}"
+  namespace = var.namespace
 }
 
 #------------------------------------------------------------------------------
@@ -78,16 +74,16 @@ module "demo" {
 
 module "pmd" {
   source                 = "./pmd/"
-  namespace              = "${var.namespace}"
-  aws_instance_ami       = "${data.aws_ami.ubuntu.id}"
-  aws_instance_type      = "${var.aws_instance_type}"
-  subnet_id              = "${module.network.subnet_ids[0]}"
-  vpc_security_group_ids = "${module.network.security_group_id}"
-  user_data              = "${data.template_file.user_data.rendered}"
-  ssh_key_name           = "${var.ssh_key_name}"
-  hashidemos_zone_id     = "${data.aws_route53_zone.hashidemos.zone_id}"
-  owner                  = "${var.owner}"
-  ttl                    = "${var.ttl}"
+  namespace              = var.namespace
+  aws_instance_ami       = data.aws_ami.ubuntu.id
+  aws_instance_type      = var.aws_instance_type
+  subnet_id              = module.network.subnet_ids[0]
+  vpc_security_group_ids = module.network.security_group_id
+  user_data              = data.template_file.user_data.rendered
+  ssh_key_name           = var.ssh_key_name
+  hashidemos_zone_id     = data.aws_route53_zone.hashidemos.zone_id
+  owner                  = var.owner
+  ttl                    = var.ttl
 }
 
 #------------------------------------------------------------------------------
@@ -113,7 +109,6 @@ module "pes" {
 }
 */
 
-
 /* Cert */
 provider "acme" {
   server_url = "https://acme-v02.api.letsencrypt.org/directory"
@@ -125,12 +120,12 @@ resource "tls_private_key" "private_key" {
 
 # TODO: fix this
 resource "acme_registration" "reg" {
-  account_key_pem = "${tls_private_key.private_key.private_key_pem}"
+  account_key_pem = tls_private_key.private_key.private_key_pem
   email_address   = "neil@hashicorp.com"
 }
 
 resource "acme_certificate" "certificate" {
-  account_key_pem           = "${acme_registration.reg.account_key_pem}"
+  account_key_pem           = acme_registration.reg.account_key_pem
   common_name               = "hashidemos.io"
   subject_alternative_names = ["${var.namespace}-pmd.hashidemos.io", "${var.namespace}-pmd7.hashidemos.io"]
 
@@ -138,3 +133,4 @@ resource "acme_certificate" "certificate" {
     provider = "route53"
   }
 }
+
